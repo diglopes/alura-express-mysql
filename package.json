@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/diglopes/alura-express-mysql/issues"
   },
-  "homepage": "https://github.com/diglopes/alura-express-mysql#readme"
+  "homepage": "https://github.com/diglopes/alura-express-mysql#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
