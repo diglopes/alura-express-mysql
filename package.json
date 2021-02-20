@@ -2,10 +2,10 @@
   "name": "alura-express-mysql",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/sindex.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/diglopes/alura-express-mysql#readme",
   "dependencies": {
+    "consign": "^0.1.6",
     "express": "^4.17.1"
   },
   "devDependencies": {
