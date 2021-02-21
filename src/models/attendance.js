@@ -40,7 +40,7 @@ class AttendanceModel {
         if (err) {
           response.status(400).json(err);
         } else {
-          response.status(201).json(result);
+          response.status(201).json({ id: result.insertId, ...composedAttendance});
         }
       });
     }
