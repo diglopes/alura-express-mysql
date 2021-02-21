@@ -1,9 +1,9 @@
 const moment = require("moment");
 const conn = require("../infra/connetion");
+const dateMask = "YYYY-MM-DD HH:mm:ss";
 
 class AttendanceModel {
   create(attendance, response) {
-    const dateMask = "YYYY-MM-DD HH:mm:ss";
     const createdAt = moment().format(dateMask);
     const normalizedDate = moment(attendance.data, "DD/MM/YYYY").format(
       dateMask
@@ -67,6 +67,22 @@ class AttendanceModel {
         response.status(200).json(attendance)
       } else {
         response.status(404).json({ message: "Atendimento não encontrado" })
+      }
+    })
+  }
+
+  update(id, attendance, response) {
+    if(attendance.data) {
+      attendance.data =  moment(attendance.data, "DD/MM/YYYY").format(
+        dateMask
+      );
+    }
+    const sql = "UPDATE atendimentos SET ? WHERE id = ?";
+    conn.query(sql, [attendance, id], (err, result) => {
+      if(err) {
+        response.status(400).json(err)
+      } else {
+        response.status(200).json(result)
       }
     })
   }
