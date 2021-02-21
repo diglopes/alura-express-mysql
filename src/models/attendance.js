@@ -45,6 +45,31 @@ class AttendanceModel {
       });
     }
   }
+
+  index(response) {
+    const sql = "SELECT * from atendimentos;"
+    conn.query(sql, (err, result) => {
+      if(err) {
+        response.status(400).json(err)
+      } else {
+        response.status(200).json(result)
+      }
+    })
+  }
+
+  findById(id, response) {
+    const sql = `SELECT * FROM atendimentos WHERE id = ${id};`
+    conn.query(sql, (err, result) => {
+      const attendance = result[0]
+      if(err) {
+        response.status(400).json(err)
+      } else if (attendance) {
+        response.status(200).json(attendance)
+      } else {
+        response.status(404).json({ message: "Atendimento não encontrado" })
+      }
+    })
+  }
 }
 
-module.exports = AttendanceModel;
+module.exports = new AttendanceModel();
