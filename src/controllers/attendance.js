@@ -20,4 +20,9 @@ module.exports = app => {
         const attendance = req.body
         attendanceModel.update(id, attendance, res)
     })
+
+    app.delete("/atendimentos/:id", (req, res) => {
+        const { id } = req.params
+        attendanceModel.remove(id, res)
+    })
 }

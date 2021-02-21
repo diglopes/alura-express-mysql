@@ -86,6 +86,17 @@ class AttendanceModel {
       }
     })
   }
+
+  remove(id, response) {
+    const sql = `DELETE FROM atendimentos WHERE id = ${id}`
+    conn.query(sql, (err, result) => {
+      if(err) {
+        response.status(400).json(err)
+      } else {
+        response.status(200).json({ id, message: "Agendamento removido"})
+      }
+    })
+  }
 }
 
 module.exports = new AttendanceModel();
