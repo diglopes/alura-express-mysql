@@ -2,7 +2,7 @@ const moment = require("moment")
 const conn = require("../infra/connetion")
 
 class AttendanceModel {
-    create(attendance) {
+    create(attendance, response) {
         const dateMask = "YYYY-MM-DD HH:mm:ss"
         const createdAt = moment().format(dateMask)
         const normalizedDate = moment(attendance.data, "DD/MM/YYYY").format(dateMask)
@@ -13,11 +13,11 @@ class AttendanceModel {
             data: normalizedDate,
         }
         
-        conn.query(sql, composedAttendance, (err, response) => {
+        conn.query(sql, composedAttendance, (err, result) => {
             if(err) {
-                console.log(err);
+                response.status(400).json(err)
             } else {
-                console.log(response);
+                response.status(201).json(result)
             }
         })
     }

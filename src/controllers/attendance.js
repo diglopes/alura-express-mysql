@@ -8,7 +8,6 @@ module.exports = app => {
     app.post("/atendimentos", (req, res) => {
         const attendance = req.body
         const attendanceModel = new AttendanceModel()
-        attendanceModel.create(attendance)
-        res.send("Atendimento criado")
+        attendanceModel.create(attendance, res)
     })
 }
