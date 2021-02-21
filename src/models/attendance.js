@@ -82,7 +82,7 @@ class AttendanceModel {
       if(err) {
         response.status(400).json(err)
       } else {
-        response.status(200).json(result)
+        response.status(200).json({ id, ...attendance})
       }
     })
   }
