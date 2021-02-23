@@ -37,9 +37,9 @@ class AttendanceModel {
         data: normalizedDate,
       };
 
-      conn.query(sql, composedAttendance, (err, result) => {
-        if (err) {
-          response.status(400).json(err);
+      conn.query(sql, composedAttendance, (error, result) => {
+        if (error) {
+          response.status(400).json(error);
         } else {
           response.status(201).json({ id: result.insertId, ...composedAttendance});
         }
@@ -49,9 +49,9 @@ class AttendanceModel {
 
   index(response) {
     const sql = "SELECT * from atendimentos;"
-    conn.query(sql, (err, result) => {
-      if(err) {
-        response.status(400).json(err)
+    conn.query(sql, (error, result) => {
+      if(error) {
+        response.status(400).json(error)
       } else {
         response.status(200).json(result)
       }
@@ -60,11 +60,11 @@ class AttendanceModel {
 
   findById(id, response) {
     const sql = `SELECT * FROM atendimentos WHERE id = ${id};`
-    conn.query(sql, async (err, result) => {
+    conn.query(sql, async (error, result) => {
       const attendance = result[0]
       const cpf = attendance.cliente
-      if(err) {
-        response.status(400).json(err)
+      if(error) {
+        response.status(400).json(error)
       } else if (attendance) {
         const { data } = await axios.get(`http://localhost:8082/${cpf}`)
         attendance.cliente = data
@@ -82,9 +82,9 @@ class AttendanceModel {
       );
     }
     const sql = "UPDATE atendimentos SET ? WHERE id = ?";
-    conn.query(sql, [attendance, id], (err, result) => {
-      if(err) {
-        response.status(400).json(err)
+    conn.query(sql, [attendance, id], (error, result) => {
+      if(error) {
+        response.status(400).json(error)
       } else {
         response.status(200).json({ id, ...attendance})
       }
@@ -93,9 +93,9 @@ class AttendanceModel {
 
   remove(id, response) {
     const sql = `DELETE FROM atendimentos WHERE id = ${id}`
-    conn.query(sql, (err, result) => {
-      if(err) {
-        response.status(400).json(err)
+    conn.query(sql, (error, result) => {
+      if(error) {
+        response.status(400).json(error)
       } else {
         response.status(200).json({ id, message: "Agendamento removido"})
       }

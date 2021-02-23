@@ -7,9 +7,9 @@ class Tables {
 
     createAttendanceTable() {
         const sql = "CREATE TABLE IF NOT EXISTS atendimentos (id int NOT NULL AUTO_INCREMENT PRIMARY KEY, cliente varchar(11) NOT NULL, pet varchar(20), servico varchar(20) NOT NULL, status varchar(20) NOT NULL, observacoes text, data datetime NOT NULL, data_criacao datetime NOT NULL);"
-        this.conn.query(sql, (err) => {
-            if(err) {
-                console.log(err);
+        this.conn.query(sql, (error) => {
+            if(error) {
+                console.log(error);
             } else {
                 console.log("Attendance table created");
             }
@@ -18,9 +18,9 @@ class Tables {
 
     createPetTable() {
         const sql = "CREATE TABLE IF NOT EXISTS pets (id int NOT NULL AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(50), imagem varchar(200))"
-        this.conn.query(sql, (err) => {
-            if(err) {
-                console.log(err);
+        this.conn.query(sql, (error) => {
+            if(error) {
+                console.log(error);
             } else {
                 console.log("Pet table created");
             }
