@@ -1,5 +1,5 @@
 const conn = require("../infra/connetion");
-const fileUpload = require("../files/file-upload");
+const fileUpload = require("../infra/files/file-upload");
 
 class PetsModel {
   create(pet, response) {
