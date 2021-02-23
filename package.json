@@ -5,7 +5,8 @@
   "main": "src/sindex.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "start:user": "node services/users/index.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "mysql": "^2.18.1"
   },
   "devDependencies": {
+    "faker": "^5.4.0",
     "nodemon": "^2.0.7"
   }
 }
