@@ -1,4 +1,5 @@
 const moment = require("moment");
+const axios = require("axios")
 const conn = require("../infra/connetion");
 const dateMask = "YYYY-MM-DD HH:mm:ss";
 
@@ -59,11 +60,14 @@ class AttendanceModel {
 
   findById(id, response) {
     const sql = `SELECT * FROM atendimentos WHERE id = ${id};`
-    conn.query(sql, (err, result) => {
+    conn.query(sql, async (err, result) => {
       const attendance = result[0]
+      const cpf = attendance.cliente
       if(err) {
         response.status(400).json(err)
       } else if (attendance) {
+        const { data } = await axios.get(`http://localhost:8082/${cpf}`)
+        attendance.cliente = data
         response.status(200).json(attendance)
       } else {
         response.status(404).json({ message: "Atendimento não encontrado" })
