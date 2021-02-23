@@ -1,6 +1,6 @@
 const customExpress = require("../config/customExpress")
-const conn = require("./infra/connetion")
-const tables = require("./infra/tables")
+const conn = require("./infra/database/connection")
+const tables = require("./infra/database/tables")
 
 const app = customExpress()
 const PORT = 3000

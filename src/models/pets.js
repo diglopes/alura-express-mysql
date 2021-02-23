@@ -1,4 +1,4 @@
-const conn = require("../infra/connetion");
+const conn = require("../infra/database/connection");
 const fileUpload = require("../infra/files/file-upload");
 
 class PetsModel {

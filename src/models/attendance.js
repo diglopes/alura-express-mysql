@@ -1,6 +1,6 @@
 const moment = require("moment");
 const axios = require("axios")
-const conn = require("../infra/connetion");
+const conn = require("../infra/database/connection");
 const dateMask = "YYYY-MM-DD HH:mm:ss";
 
 class AttendanceModel {
