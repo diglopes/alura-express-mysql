@@ -57,14 +57,7 @@ class AttendanceModel {
   }
 
   index(response) {
-    const sql = "SELECT * from atendimentos;"
-    conn.query(sql, (error, result) => {
-      if(error) {
-        response.status(400).json(error)
-      } else {
-        response.status(200).json(result)
-      }
-    })
+    return attendanceRepository.index()
   }
 
   findById(id, response) {

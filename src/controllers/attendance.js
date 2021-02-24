@@ -2,7 +2,14 @@ const attendanceModel = require("../models/attendance")
 
 module.exports = app => {
     app.get("/atendimentos", (req, res) => {
-        attendanceModel.index(res)
+        attendanceModel
+          .index()
+          .then(attendance => {
+              res.json(attendance)
+          })
+          .catch(error => {
+              res.status(400).json(error)
+          })
     })
 
     app.get("/atendimentos/:id", (req, res) => {
