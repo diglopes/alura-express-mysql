@@ -6,36 +6,47 @@ const attendanceRepository = require("../repositories/attendance")
 const dateMask = "YYYY-MM-DD HH:mm:ss";
 
 class AttendanceModel {
-  create(attendance) {
-    const createdAt = moment().format(dateMask);
-    const normalizedDate = moment(attendance.data, "DD/MM/YYYY").format(
-      dateMask
-    );
-
-    const isDateValid = moment(normalizedDate).isSameOrAfter(createdAt);
-    const isClientValid = attendance.cliente.length >= 5;
-    const validations = [
+  constructor() {
+    this.isDateValid = ({ date, createdAt }) => moment(date).isSameOrAfter(createdAt);
+    this.isClientValid = ({ length }) => length >= 5;
+    this.validations = [
       {
         field: "data",
         message: "A data deve ser maior ou igual a data atual",
-        valid: isDateValid,
+        valid: this.isDateValid,
       },
       {
         field: "cliente",
         message: "Cliente deve ter ao menos 5 caracteres",
-        valid: isClientValid,
+        valid: this.isClientValid,
       },
     ];
-    const errors = validations.filter((field) => !field.valid);
-    const errorFound = errors.length;
+  }
 
+  validate(params) {
+    return this.validations.filter(({ field, valid }) => {
+      return !valid(params[field])
+    })
+  }
+
+  create(attendance) {
+    const createdAt = moment().format(dateMask);
+    const date = moment(attendance.data, "DD/MM/YYYY").format(
+      dateMask
+    );
+    const validationParams = {
+      data: { date, createdAt },
+      cliente: { length: attendance.cliente.length }
+    }
+    const errors = this.validate(validationParams)
+    const errorFound = errors.length;
     if (errorFound) {
        return Promise.reject(errors)
     } else {
       const composedAttendance = {
         ...attendance,
         data_criacao: createdAt,
-        data: normalizedDate,
+        data: date,
       };
       return attendanceRepository
         .create(composedAttendance)
