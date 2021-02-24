@@ -12,7 +12,13 @@ module.exports = app => {
 
     app.post("/atendimentos", (req, res) => {
         const attendance = req.body
-        attendanceModel.create(attendance, res)
+        attendanceModel.create(attendance)
+          .then(registeredAttendance => {
+            res.status(201).json(registeredAttendance)
+          })
+          .catch(error => {
+            res.status(400).json(error)
+          })
     })
 
     app.patch("/atendimentos/:id", (req, res) => {

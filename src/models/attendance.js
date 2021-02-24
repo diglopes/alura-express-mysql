@@ -1,10 +1,12 @@
 const moment = require("moment");
 const axios = require("axios")
 const conn = require("../infra/database/connection");
+const attendanceRepository = require("../repositories/attendance")
+
 const dateMask = "YYYY-MM-DD HH:mm:ss";
 
 class AttendanceModel {
-  create(attendance, response) {
+  create(attendance) {
     const createdAt = moment().format(dateMask);
     const normalizedDate = moment(attendance.data, "DD/MM/YYYY").format(
       dateMask
@@ -28,22 +30,18 @@ class AttendanceModel {
     const errorFound = errors.length;
 
     if (errorFound) {
-        response.status(400).json(errors)
+       return Promise.reject(errors)
     } else {
-      const sql = "INSERT INTO atendimentos SET ?";
       const composedAttendance = {
         ...attendance,
         data_criacao: createdAt,
         data: normalizedDate,
       };
-
-      conn.query(sql, composedAttendance, (error, result) => {
-        if (error) {
-          response.status(400).json(error);
-        } else {
-          response.status(201).json({ id: result.insertId, ...composedAttendance});
-        }
-      });
+      return attendanceRepository
+        .create(composedAttendance)
+        .then((result) => {
+          return { id: result.insertId, ...composedAttendance}
+        })
     }
   }
 
