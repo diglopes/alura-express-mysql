@@ -1,101 +1,117 @@
 const moment = require("moment");
-const conn = require("../infra/connetion");
+const axios = require("axios")
+const conn = require("../infra/database/connection");
+const attendanceRepository = require("../repositories/attendance")
+
 const dateMask = "YYYY-MM-DD HH:mm:ss";
 
 class AttendanceModel {
-  create(attendance, response) {
-    const createdAt = moment().format(dateMask);
-    const normalizedDate = moment(attendance.data, "DD/MM/YYYY").format(
-      dateMask
-    );
-
-    const isDateValid = moment(normalizedDate).isSameOrAfter(createdAt);
-    const isClientValid = attendance.cliente.length >= 5;
-    const validations = [
+  constructor() {
+    this.isDateValid = ({ date, createdAt }) => moment(date).isSameOrAfter(createdAt);
+    this.isClientValid = ({ length }) => length >= 5;
+    this.validations = [
       {
         field: "data",
         message: "A data deve ser maior ou igual a data atual",
-        valid: isDateValid,
+        valid: this.isDateValid,
       },
       {
         field: "cliente",
         message: "Cliente deve ter ao menos 5 caracteres",
-        valid: isClientValid,
+        valid: this.isClientValid,
       },
     ];
-    const errors = validations.filter((field) => !field.valid);
-    const errorFound = errors.length;
+  }
 
+  _validate(params) {
+    return this.validations.filter(({ field, valid }) => {
+      return params[field] && !valid(params[field])
+    })
+  }
+
+  _formatDate(date) {
+    return moment(date, "DD/MM/YYYY").format(
+      dateMask
+    );
+  }
+
+  _getCurrentTimestamp() {
+    return moment().format(dateMask);
+  }
+
+  create(attendance) {
+    const createdAt = this._getCurrentTimestamp()
+    const date = this._formatDate(attendance.data)
+    const validationParams = {
+      data: { date, createdAt },
+      cliente: { length: attendance.cliente.length }
+    }
+    const errors = this._validate(validationParams)
+    const errorFound = errors.length;
     if (errorFound) {
-        response.status(400).json(errors)
+       return Promise.reject(errors)
     } else {
-      const sql = "INSERT INTO atendimentos SET ?";
       const composedAttendance = {
         ...attendance,
         data_criacao: createdAt,
-        data: normalizedDate,
+        data: date,
       };
+      return attendanceRepository
+        .create(composedAttendance)
+        .then((result) => {
+          return { id: result.insertId, ...composedAttendance}
+        })
+    }
+  }
 
-      conn.query(sql, composedAttendance, (err, result) => {
-        if (err) {
-          response.status(400).json(err);
-        } else {
-          response.status(201).json({ id: result.insertId, ...composedAttendance});
+  index() {
+    return attendanceRepository.index()
+  }
+
+  findById(id) {
+    let attendance;
+    return attendanceRepository
+      .findById(id)
+      .then(result => {
+        attendance = result[0]
+        const cpf = attendance.cliente
+        const client = axios.get(`http://localhost:8082/${cpf}`)
+        return client
+      })
+      .then(({ data }) => {
+        return {
+          client: data,
+          ...attendance
         }
-      });
-    }
+      })
   }
 
-  index(response) {
-    const sql = "SELECT * from atendimentos;"
-    conn.query(sql, (err, result) => {
-      if(err) {
-        response.status(400).json(err)
-      } else {
-        response.status(200).json(result)
-      }
-    })
-  }
-
-  findById(id, response) {
-    const sql = `SELECT * FROM atendimentos WHERE id = ${id};`
-    conn.query(sql, (err, result) => {
-      const attendance = result[0]
-      if(err) {
-        response.status(400).json(err)
-      } else if (attendance) {
-        response.status(200).json(attendance)
-      } else {
-        response.status(404).json({ message: "Atendimento não encontrado" })
-      }
-    })
-  }
-
-  update(id, attendance, response) {
+  
+  update(id, attendance) {
+    const validationParams = {}
     if(attendance.data) {
-      attendance.data =  moment(attendance.data, "DD/MM/YYYY").format(
-        dateMask
-      );
+      const date = this._formatDate(attendance.data);
+      const createdAt = this._getCurrentTimestamp()
+      validationParams.data = { date, createdAt }
     }
-    const sql = "UPDATE atendimentos SET ? WHERE id = ?";
-    conn.query(sql, [attendance, id], (err, result) => {
-      if(err) {
-        response.status(400).json(err)
-      } else {
-        response.status(200).json({ id, ...attendance})
-      }
-    })
+    if(attendance.cliente) {
+      validationParams.cliente = { length: attendance.cliente.length } 
+    }
+    const shouldValidate = Object.keys(validationParams).length > 0
+    if(shouldValidate) {
+      const errors = this._validate(validationParams)
+      const errorFound = errors.length;
+      if (errorFound) return Promise.reject(errors)
+    }
+    return attendanceRepository
+      .update(id, attendance)
+      .then(() => ({ id, ...attendance }))
   }
 
-  remove(id, response) {
-    const sql = `DELETE FROM atendimentos WHERE id = ${id}`
-    conn.query(sql, (err, result) => {
-      if(err) {
-        response.status(400).json(err)
-      } else {
-        response.status(200).json({ id, message: "Agendamento removido"})
-      }
-    })
+  remove(id) {
+    return attendanceRepository
+      .remove(id)
+      .then(() => ({ id, message: "Agendamento removido" }))
   }
 }
 
