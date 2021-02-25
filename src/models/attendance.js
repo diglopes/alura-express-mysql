@@ -23,22 +23,30 @@ class AttendanceModel {
     ];
   }
 
-  validate(params) {
+  _validate(params) {
     return this.validations.filter(({ field, valid }) => {
-      return !valid(params[field])
+      return params[field] && !valid(params[field])
     })
   }
 
-  create(attendance) {
-    const createdAt = moment().format(dateMask);
-    const date = moment(attendance.data, "DD/MM/YYYY").format(
+  _formatDate(date) {
+    return moment(date, "DD/MM/YYYY").format(
       dateMask
     );
+  }
+
+  _getCurrentTimestamp() {
+    return moment().format(dateMask);
+  }
+
+  create(attendance) {
+    const createdAt = this._getCurrentTimestamp()
+    const date = this._formatDate(attendance.data)
     const validationParams = {
       data: { date, createdAt },
       cliente: { length: attendance.cliente.length }
     }
-    const errors = this.validate(validationParams)
+    const errors = this._validate(validationParams)
     const errorFound = errors.length;
     if (errorFound) {
        return Promise.reject(errors)
@@ -56,7 +64,7 @@ class AttendanceModel {
     }
   }
 
-  index(response) {
+  index() {
     return attendanceRepository.index()
   }
 
@@ -78,20 +86,26 @@ class AttendanceModel {
       })
   }
 
-  update(id, attendance, response) {
+  
+  update(id, attendance) {
+    const validationParams = {}
     if(attendance.data) {
-      attendance.data =  moment(attendance.data, "DD/MM/YYYY").format(
-        dateMask
-      );
+      const date = this._formatDate(attendance.data);
+      const createdAt = this._getCurrentTimestamp()
+      validationParams.data = { date, createdAt }
     }
-    const sql = "UPDATE atendimentos SET ? WHERE id = ?";
-    conn.query(sql, [attendance, id], (error, result) => {
-      if(error) {
-        response.status(400).json(error)
-      } else {
-        response.status(200).json({ id, ...attendance})
-      }
-    })
+    if(attendance.cliente) {
+      validationParams.cliente = { length: attendance.cliente.length } 
+    }
+    const shouldValidate = Object.keys(validationParams).length > 0
+    if(shouldValidate) {
+      const errors = this._validate(validationParams)
+      const errorFound = errors.length;
+      if (errorFound) return Promise.reject(errors)
+    }
+    return attendanceRepository
+      .update(id, attendance)
+      .then(() => ({ id, ...attendance }))
   }
 
   remove(id, response) {

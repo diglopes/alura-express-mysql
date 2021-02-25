@@ -15,6 +15,11 @@ class AttendanceRepository {
         const sql = `SELECT * FROM atendimentos WHERE id = ${id};`
         return query(sql)
     }
+
+    update(id, attendance) {
+        const sql = "UPDATE atendimentos SET ? WHERE id = ?";
+        return query(sql, [attendance, id])
+    }
 }
 
 

@@ -34,7 +34,10 @@ module.exports = app => {
     app.patch("/atendimentos/:id", (req, res) => {
         const { id } = req.params
         const attendance = req.body
-        attendanceModel.update(id, attendance, res)
+        attendanceModel
+          .update(id, attendance)
+          .then(result => res.json(result))
+          .catch(error => res.status(400).json(error))
     })
 
     app.delete("/atendimentos/:id", (req, res) => {
