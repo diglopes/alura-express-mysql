@@ -10,6 +10,11 @@ class AttendanceRepository {
         const sql = "SELECT * from atendimentos"
         return query(sql)
     }
+
+    findById(id) {
+        const sql = `SELECT * FROM atendimentos WHERE id = ${id};`
+        return query(sql)
+    }
 }
 
 

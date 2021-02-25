@@ -60,21 +60,22 @@ class AttendanceModel {
     return attendanceRepository.index()
   }
 
-  findById(id, response) {
-    const sql = `SELECT * FROM atendimentos WHERE id = ${id};`
-    conn.query(sql, async (error, result) => {
-      const attendance = result[0]
-      const cpf = attendance.cliente
-      if(error) {
-        response.status(400).json(error)
-      } else if (attendance) {
-        const { data } = await axios.get(`http://localhost:8082/${cpf}`)
-        attendance.cliente = data
-        response.status(200).json(attendance)
-      } else {
-        response.status(404).json({ message: "Atendimento não encontrado" })
-      }
-    })
+  findById(id) {
+    let attendance;
+    return attendanceRepository
+      .findById(id)
+      .then(result => {
+        attendance = result[0]
+        const cpf = attendance.cliente
+        const client = axios.get(`http://localhost:8082/${cpf}`)
+        return client
+      })
+      .then(({ data }) => {
+        return {
+          client: data,
+          ...attendance
+        }
+      })
   }
 
   update(id, attendance, response) {

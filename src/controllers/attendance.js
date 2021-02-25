@@ -14,7 +14,10 @@ module.exports = app => {
 
     app.get("/atendimentos/:id", (req, res) => {
         const { id } = req.params
-        attendanceModel.findById(id, res)
+        attendanceModel
+          .findById(id)
+          .then(result => res.json(result))
+          .catch(error => res.status(400).json(error))
     })
 
     app.post("/atendimentos", (req, res) => {
