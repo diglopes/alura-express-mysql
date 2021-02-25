@@ -108,15 +108,10 @@ class AttendanceModel {
       .then(() => ({ id, ...attendance }))
   }
 
-  remove(id, response) {
-    const sql = `DELETE FROM atendimentos WHERE id = ${id}`
-    conn.query(sql, (error, result) => {
-      if(error) {
-        response.status(400).json(error)
-      } else {
-        response.status(200).json({ id, message: "Agendamento removido"})
-      }
-    })
+  remove(id) {
+    return attendanceRepository
+      .remove(id)
+      .then(() => ({ id, message: "Agendamento removido" }))
   }
 }
 

@@ -20,6 +20,11 @@ class AttendanceRepository {
         const sql = "UPDATE atendimentos SET ? WHERE id = ?";
         return query(sql, [attendance, id])
     }
+
+    remove(id) {
+        const sql = `DELETE FROM atendimentos WHERE id = ${id}`
+        return query(sql)
+    }
 }
 
 

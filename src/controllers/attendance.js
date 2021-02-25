@@ -42,6 +42,9 @@ module.exports = app => {
 
     app.delete("/atendimentos/:id", (req, res) => {
         const { id } = req.params
-        attendanceModel.remove(id, res)
+        attendanceModel
+          .remove(id)
+          .then(result => res.json(result))
+          .catch(error => res.status(400).json(error))
     })
 }
